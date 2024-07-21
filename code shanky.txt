@@ -1,0 +1,97 @@
+import sqlite3
+
+# Create and connect to a database
+conn = sqlite3.connect('employee_management.db')
+cursor = conn.cursor()
+
+# Create the employee table
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS employee (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    position TEXT NOT NULL,
+    salary REAL NOT NULL
+)
+''')
+conn.commit()
+
+# Add a new employee
+def add_employee(name, position, salary):
+    cursor.execute('''
+    INSERT INTO employee (name, position, salary)
+    VALUES (?, ?, ?)
+    ''', (name, position, salary))
+    conn.commit()
+    print("Employee added successfully.")
+
+# View all employees
+def view_employees():
+    cursor.execute('SELECT * FROM employee')
+    employees = cursor.fetchall()
+    for employee in employees:
+        print(employee)
+
+# Update an employee's information
+def update_employee(emp_id, name=None, position=None, salary=None):
+    if name:
+        cursor.execute('UPDATE employee SET name = ? WHERE id = ?', (name, emp_id))
+if position:
+        cursor.execute('UPDATE employee SET position = ? WHERE id = ?', (position, emp_id))
+    if salary:
+        cursor.execute('UPDATE employee SET salary = ? WHERE id = ?', (salary, emp_id))
+    conn.commit()
+    print("Employee updated successfully.")
+
+# Delete an employee
+def delete_employee(emp_id):
+    cursor.execute('DELETE FROM employee WHERE id = ?', (emp_id,))
+    conn.commit()
+    print("Employee deleted successfully.")
+
+# Main function to interact with the system
+def main():
+    while True:
+        print("\nEmployee Management System")
+        print("1. Add Employee")
+        print("2. View Employees")
+        print("3. Update Employee")
+        print("4. Delete Employee")
+        print("5. Exit")
+        
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            name = input("Enter employee name: ")
+            position = input("Enter employee position: ")
+            salary = float(input("Enter employee salary: "))
+            add_employee(name, position, salary)
+        
+        elif choice == '2':
+            view_employees()
+        
+        elif choice == '3':
+            emp_id = int(input("Enter employee ID to update: "))
+            name = input("Enter new name (leave blank to keep current): ")
+            position = input("Enter new position (leave blank to keep current): ")
+
+salary = input("Enter new salary (leave blank to keep current): ")
+            salary = float(salary) if salary else None
+            update_employee(emp_id, name or None, position or None, salary)
+        
+        elif choice == '4':
+            emp_id = int(input("Enter employee ID to delete: "))
+            delete_employee(emp_id)
+        
+        elif choice == '5':
+            print("Exiting the system.")
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
+
+# Run the main function
+if __name__ == "__main__":
+    main()
+
+# Close the database connection
+conn.close()
